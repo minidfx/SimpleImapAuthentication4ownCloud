@@ -1,14 +1,23 @@
 <?xml version="1.0"?>
 <info>
-	<id>user_imapauth</id>
-	<name>IMAP Authenticator</name>
-	<description>Authenticate users by a IMAP call. You can use any IMAP server to authenticate.
+    <id>user_imapauth</id>
+    <name>Authenticate users through IMAP.</name>
+    <description>Provide the user authentication through IMAP.</description>
+    <version>1.0</version>
+    <licence>AGPL</licence>
+    <author>Burgy Benjamin</author>
+    <requiremin>5</requiremin>
 
-	This app is not compatible to the LDAP user and group backend or WebDAVAuth.</description>
-	<licence>AGPL</licence>
-	<author>Burgy Benjamin</author>
-	<require>5.00</require>
-	<types>
-		<authentication/>
-	</types>
+    <types>
+        <type>authentication</type>
+    </types>
+
+
+    <documentation>
+        <user>http://blog.couloir42.ch/user_imapauth</user>
+    </documentation>
+
+    <website>http://blog.couloir42.ch</website>
+
+    <standalone/>
 </info>
