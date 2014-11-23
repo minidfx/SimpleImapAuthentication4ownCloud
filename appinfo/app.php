@@ -11,8 +11,11 @@ namespace OCA\user_imapauth\AppInfo;
 use OCP\App;
 use OCP\Util;
 
-/** @noinspection SpellCheckingInspection */
-define('APP_ID', 'user_imapauth');
+if (!defined('APP_ID'))
+{
+	/** @noinspection SpellCheckingInspection */
+	define('APP_ID', 'user_imapauth');
+}
 
 App::addNavigationEntry(array(
 
@@ -36,3 +39,8 @@ App::addNavigationEntry(array(
                         ));
 
 Util::writeLog(APP_ID, 'Entry point of the imap user authentication accessed.', Util::INFO);
+
+/**
+ * register admin settings section
+ */
+App::registerAdmin(APP_ID, 'settings');

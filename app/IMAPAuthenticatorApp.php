@@ -37,8 +37,10 @@ final class IMAPAuthenticatorApp
 
 		$container->registerService('PageController', function (IAppContainer $c)
 		{
-			return new PageController($c->query('AppName'), $c->query('ServerContainer')->getLogger(),
-			                          $c->query('Request'));
+			return new PageController($c->query('AppName'),
+			                          $c->query('ServerContainer')->getLogger(),
+			                          $c->query('Request'),
+			                          $c->query('ServerContainer')->getL10N($c->query('AppName')));
 		});
 	}
 }
