@@ -38,8 +38,6 @@ App::addNavigationEntry(array(
 	                        'name'  => 'IMAP User Authentication'
                         ));
 
-Util::writeLog(APP_ID, 'Entry point of the imap user authentication accessed.', Util::INFO);
-
 /**
  * register admin settings section
  */

@@ -6,6 +6,8 @@ OC_Util::checkAdminUser();
 script('user_imapauth', 'jquery.ba-throttle-debounce.min');
 /** @noinspection SpellCheckingInspection */
 script('user_imapauth', 'settings-admin');
+/** @noinspection SpellCheckingInspection */
+style('user_imapauth', 'settings');
 
 /** @var OC_Template $template */
 $template = new OC_Template(APP_ID, 'settings');

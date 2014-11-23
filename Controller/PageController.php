@@ -32,8 +32,8 @@ final class PageController
 	/**
 	 * @var IL10N
 	 */
-	private $l01n;
-	
+	private $l10n;
+
 	/**
 	 * @var IConfig
 	 */
@@ -45,15 +45,15 @@ final class PageController
 	 * @param string   $appName
 	 * @param ILogger  $logger
 	 * @param IRequest $request
-	 * @param IL10N    $l01n
+	 * @param IL10N    $l10n
 	 * @param IConfig  $config
 	 */
-	public function __construct($appName, ILogger $logger, IRequest $request, IL10N $l01n, IConfig $config)
+	public function __construct($appName, ILogger $logger, IRequest $request, IL10N $l10n, IConfig $config)
 	{
 		parent::__construct($appName, $request);
 
 		$this->logger = $logger;
-		$this->l01n   = $l01n;
+		$this->l10n   = $l10n;
 		$this->config = $config;
 
 		$this->logger->info('PageController has been accessed.');

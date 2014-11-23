@@ -28,6 +28,16 @@ final class IMAPAuthenticatorApp
 
 		$container = $this->getContainer();
 
+		$container->registerService('L10N', function (IAppContainer $c)
+		{
+			return $c->query('ServerContainer')->getL10N($c->query('AppName'));
+		});
+
+		$container->registerService('UserManager', function (IAppContainer $c)
+		{
+			return $c->query('ServerContainer')->getUserManager();
+		});
+
 		$container->registerService('Config', function (IAppContainer $c)
 		{
 			return $c->query('ServerContainer')->getConfig();
@@ -40,7 +50,7 @@ final class IMAPAuthenticatorApp
 
 		$container->registerService('UserSession', function (IAppContainer $c)
 		{
-			return new IMAPAuthenticator($c->query('ServerContainer')->getUserManager(),
+			return new IMAPAuthenticator($c->query('UserManager'),
 			                             $c->query('Config'),
 			                             $c->query('Logger'));
 		});
@@ -50,7 +60,7 @@ final class IMAPAuthenticatorApp
 			return new PageController($c->query('AppName'),
 			                          $c->query('Logger'),
 			                          $c->query('Request'),
-			                          $c->query('ServerContainer')->getL10N($c->query('AppName')),
+			                          $c->query('L10N'),
 			                          $c->query('Config'));
 		});
 	}

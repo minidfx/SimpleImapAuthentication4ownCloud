@@ -10,7 +10,7 @@
 namespace OCA\user_imapauth\lib;
 
 use OC;
-use OCP\Config;
+use OCP\IConfig;
 use OCP\ILogger;
 use OCP\IUserManager;
 use OCP\IUserSession;
@@ -18,7 +18,7 @@ use OCP\User;
 
 /**
  * Class IMAP_AUTH for authenticating users with an IMAP server.
- * @package OCA\user_imapauth\services
+ * @package OCA\user_imapauth\lib
  */
 
 /** @noinspection SpellCheckingInspection */
@@ -29,12 +29,12 @@ final class IMAPAuthenticator
 	/**
 	 * @var string
 	 */
-	protected $imapHost;
+	protected $host;
 
 	/**
 	 * @var int
 	 */
-	protected $imapPort;
+	protected $port;
 
 	/**
 	 * @var ILogger
@@ -47,7 +47,7 @@ final class IMAPAuthenticator
 	private $userManager;
 
 	/**
-	 * @var Config
+	 * @var IConfig
 	 */
 	private $config;
 
@@ -62,19 +62,21 @@ final class IMAPAuthenticator
 	 * Initializes an instance of <b>user_imapauth</b>
 	 *
 	 * @param IUserManager $userManager
-	 * @param Config       $config
+	 * @param IConfig      $config
 	 * @param ILogger      $logger
+	 *
+	 * @internal param IUserSession $userSession
 	 */
-	public function __construct(IUserManager $userManager, Config $config, ILogger $logger)
+	public function __construct(IUserManager $userManager, IConfig $config, ILogger $logger)
 	{
-		$this->imapHost = $config->getAppValue(APP_ID, 'user_imap_uri');
-		$this->imapPort = $config->getAppValue(APP_ID, 'user_imap_port');
+		$this->host = $config->getAppValue(APP_ID, 'imap_uri');
+		$this->port = $config->getAppValue(APP_ID, 'imap_port');
 
 		$this->userManager = $userManager;
 		$this->config      = $config;
 		$this->logger      = $logger;
 
-		$this->logger->debug('Instance IMAP Authentication without parameters.');
+		$this->logger->debug('Instance IMAP authenticator without parameters.');
 	}
 
 	/**
@@ -89,14 +91,14 @@ final class IMAPAuthenticator
 	{
 		$this->logger->debug("Try for authenticating the user $user ...");
 
-		if (empty($this->imapHost))
+		if (empty($this->host))
 		{
 			$this->logger->error('The IMAP host is missing. You have to configure the authenticator from the admin console.');
 
 			return FALSE;
 		}
 
-		if (empty($this->imapPort))
+		if (empty($this->port))
 		{
 			$this->logger->error('The IMAP port is missing. You have to configure the authenticator from the admin console.');
 
@@ -104,7 +106,7 @@ final class IMAPAuthenticator
 		}
 
 		// INFO: [MiniDfx 15-11-2014 07:32:12] Try to open the inbox in read only without retry.
-		$loginResult = imap_open('{$this->host}:{$this->port}/imap/ssl}INBOX', $user, $password, OP_READONLY, 0);
+		$loginResult = imap_open("{$this->host}:{$this->port}/imap/ssl}INBOX", $user, $password, OP_READONLY, 0);
 
 		if ($loginResult === FALSE)
 		{
