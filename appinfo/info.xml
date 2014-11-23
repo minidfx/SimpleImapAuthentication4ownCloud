@@ -1,17 +1,16 @@
 <?xml version="1.0"?>
 <info>
     <id>user_imapauth</id>
-    <name>Authenticate users through IMAP.</name>
+    <name>IMAP user authentication</name>
     <description>Provide the user authentication through IMAP.</description>
     <version>1.0</version>
     <licence>AGPL</licence>
     <author>Burgy Benjamin</author>
-    <requiremin>5</requiremin>
+    <requiremin>7</requiremin>
 
     <types>
         <type>authentication</type>
     </types>
-
 
     <documentation>
         <user>http://blog.couloir42.ch/user_imapauth</user>

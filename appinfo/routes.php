@@ -1,16 +1,20 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: MiniDfx
- * Date: 11/15/2014
- * Time: 19:25
+ * User: minidfx
+ * Date: 23.11.14
+ * Time: 00:08
  */
 
-namespace OCA\MyApp\AppInfo;
+namespace OCA\user_imapauth\App;
 
-$application = new Application();
+/** @var IMAPAuthenticatorApp $application */
+$application = new IMAPAuthenticatorApp();
+
 $application->registerRoutes($this, array(
 	'routes' => array(
-		array('name' => 'page#index', 'url' => '/', 'verb' => 'GET'),
+		array('name' => 'page#index',
+		      'url'  => '/',
+		      'verb' => 'GET'),
 	)
 ));

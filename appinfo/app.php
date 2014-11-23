@@ -1,25 +1,38 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: minidfx
+ * Date: 22.11.14
+ * Time: 23:34
+ */
 
-\OCP\App::addNavigationEntry(array(
+namespace OCA\user_imapauth\AppInfo;
 
-	                             // the string under which your app will be referenced in owncloud
-	                             'id'    => APP_ID,
+use OCP\App;
+use OCP\Util;
 
-	                             // sorting weight for the navigation. The higher the number, the higher
-	                             // will it be listed in the navigation
-	                             'order' => 1,
+/** @noinspection SpellCheckingInspection */
+define('APP_ID', 'user_imapauth');
 
-	                             // the route that will be shown on startup
-	                             'href'  => \OCP\Util::linkToRoute('myapp.page.index'),
+App::addNavigationEntry(array(
 
-	                             // the icon that will be shown in the navigation
-	                             // this file needs to exist in img/example.png
-	                             'icon'  => \OCP\Util::imagePath('myapp', 'app.svg'),
+	                        // the string under which your app will be referenced in owncloud
+	                        'id'    => APP_ID,
 
-	                             // the title of your application. This will be used in the
-	                             // navigation or on the settings page of your app
-	                             'name'  => \OC_L10N::get(APP_ID)->t('User authentication IMAP')
-                             ));
+	                        // sorting weight for the navigation. The higher the number, the higher
+	                        // will it be listed in the navigation
+	                        'order' => 10,
 
-// execute OCA\MyApp\Hooks\User::deleteUser before a user is being deleted
-\OCP\Util::connectHook('OC_User', 'preLogin', 'OCA\ImapAuth', 'preLogin');
+	                        // the route that will be shown on startup
+	                        'href'  => Util::linkToRoute(APP_ID . '.page.index'),
+
+	                        // the icon that will be shown in the navigation
+	                        // this file needs to exist in img/example.png
+	                        'icon'  => Util::imagePath(APP_ID, 'nav-icon.png'),
+
+	                        // the title of your application. This will be used in the
+	                        // navigation or on the settings page of your app
+	                        'name'  => 'IMAP User Authentication'
+                        ));
+
+Util::writeLog(APP_ID, 'Entry point of the imap user authentication accessed.', Util::INFO);
