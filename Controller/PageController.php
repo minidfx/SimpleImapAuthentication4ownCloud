@@ -4,6 +4,7 @@ namespace OCA\user_imapauth\controller;
 
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\IConfig;
 use OCP\IL10N;
 use OCP\ILogger;
 use OCP\IRequest;
@@ -32,6 +33,11 @@ final class PageController
 	 * @var IL10N
 	 */
 	private $l01n;
+	
+	/**
+	 * @var IConfig
+	 */
+	private $config;
 
 	/**
 	 * Initializes an instance of <b>PageController</b>
@@ -40,13 +46,15 @@ final class PageController
 	 * @param ILogger  $logger
 	 * @param IRequest $request
 	 * @param IL10N    $l01n
+	 * @param IConfig  $config
 	 */
-	public function __construct($appName, ILogger $logger, IRequest $request, IL10N $l01n)
+	public function __construct($appName, ILogger $logger, IRequest $request, IL10N $l01n, IConfig $config)
 	{
 		parent::__construct($appName, $request);
 
 		$this->logger = $logger;
 		$this->l01n   = $l01n;
+		$this->config = $config;
 
 		$this->logger->info('PageController has been accessed.');
 	}
@@ -59,6 +67,10 @@ final class PageController
 	 */
 	public function index()
 	{
-		return new TemplateResponse(APP_ID, 'main');
+		$imapUri  = $this->config->getAppValue($this->appName, 'imap_uri', '');
+		$imapPort = $this->config->getAppValue($this->appName, 'imap_port', '');
+
+		return new TemplateResponse(APP_ID, 'main', array('imap_uri'  => $imapUri,
+		                                                  'imap_port' => $imapPort));
 	}
 }
