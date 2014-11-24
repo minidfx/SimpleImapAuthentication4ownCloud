@@ -12,6 +12,9 @@ use OCA\user_imapauth\controller\PageController;
 use OCA\user_imapauth\lib\IMAPAuthenticator;
 use OCP\AppFramework\App;
 use OCP\AppFramework\IAppContainer;
+use OCP\IL10N;
+use OCP\ILogger;
+use OCP\IUserManager;
 
 final class IMAPAuthenticatorApp
 	extends
@@ -48,7 +51,7 @@ final class IMAPAuthenticatorApp
 			return $c->query('ServerContainer')->getLogger();
 		});
 
-		$container->registerService('UserSession', function (IAppContainer $c)
+		$container->registerService('IMAPUserManager', function (IAppContainer $c)
 		{
 			return new IMAPAuthenticator($c->query('UserManager'),
 			                             $c->query('Config'),
@@ -63,5 +66,29 @@ final class IMAPAuthenticatorApp
 			                          $c->query('L10N'),
 			                          $c->query('Config'));
 		});
+
+		/** @var IUserManager $userManager */
+		$userManager = $container->query('UserManager');
+
+		/** @var IMAPAuthenticator $imapUserManager */
+		$imapUserManager = $container->query('IMAPUserManager');
+
+		$userManager->registerBackend($imapUserManager);
+	}
+
+	/**
+	 * @return ILogger
+	 */
+	public function getLogger()
+	{
+		return $this->getContainer()->query('Logger');
+	}
+
+	/**
+	 * @return IL10N
+	 */
+	public function getL10N()
+	{
+		return $this->getContainer()->query('L10N');
 	}
 }

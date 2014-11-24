@@ -9,12 +9,12 @@
 
 namespace OCA\user_imapauth\lib;
 
+use Exception;
 use OC;
 use OCP\IConfig;
 use OCP\ILogger;
 use OCP\IUserManager;
-use OCP\IUserSession;
-use OCP\User;
+use OCP\UserInterface;
 
 /**
  * Class IMAP_AUTH for authenticating users with an IMAP server.
@@ -24,7 +24,7 @@ use OCP\User;
 /** @noinspection SpellCheckingInspection */
 final class IMAPAuthenticator
 	implements
-	IUserSession
+	UserInterface
 {
 	/**
 	 * @var string
@@ -51,11 +51,6 @@ final class IMAPAuthenticator
 	 */
 	private $config;
 
-	/**
-	 * @var User
-	 */
-	private $user;
-
 	/** @noinspection SpellCheckingInspection */
 
 	/**
@@ -75,86 +70,159 @@ final class IMAPAuthenticator
 		$this->userManager = $userManager;
 		$this->config      = $config;
 		$this->logger      = $logger;
-
-		$this->logger->debug('Instance IMAP authenticator without parameters.');
 	}
 
 	/**
-	 * Do a user login
+	 * Check if the password is correct
 	 *
-	 * @param string $user     the username
-	 * @param string $password the password
+	 * @param string $uid      The username
+	 * @param string $password The password
 	 *
-	 * @return bool true if successful
+	 * @return string
+	 *
+	 * Check if the password is correct without logging in the user
+	 * returns the user id or false
 	 */
-	public function login($user, $password)
+	public function checkPassword($uid, $password)
 	{
-		$this->logger->debug("Try for authenticating the user $user ...");
+		$this->logger->debug("Try for authenticating the user $uid ...");
 
 		if (empty($this->host))
 		{
-			$this->logger->error('The IMAP host is missing. You have to configure the authenticator from the admin console.');
+			$this->logger->error('The IMAP host is missing. You have to configure the authenticator from the admin console.',
+			                     array('app' => APP_ID));
 
 			return FALSE;
 		}
 
 		if (empty($this->port))
 		{
-			$this->logger->error('The IMAP port is missing. You have to configure the authenticator from the admin console.');
+			$this->logger->error('The IMAP port is missing. You have to configure the authenticator from the admin console.',
+			                     array('app' => APP_ID));
 
-			return TRUE;
+			return FALSE;
 		}
 
 		// INFO: [MiniDfx 15-11-2014 07:32:12] Try to open the inbox in read only without retry.
-		$loginResult = imap_open("{$this->host}:{$this->port}/imap/ssl}INBOX", $user, $password, OP_READONLY, 0);
+		$loginResult = imap_open("{{$this->host}:{$this->port}/imap/ssl/debug}INBOX", $uid, $password, OP_READONLY, 3);
 
 		if ($loginResult === FALSE)
 		{
-			$this->logger->warning("Credentials invalid for the user $user.");
+			$this->logger->warning(implode('', imap_errors()), array('app' => APP_ID));
 
 			return FALSE;
 		}
 		else
 		{
-			$this->logger->info("Credentials for the $user has been successfully validated.");
+			if (!$this->userManager->userExists($uid))
+			{
+				$this->userManager->createUser($uid, $password);
+			}
 
-			return TRUE;
+			return $uid;
 		}
 	}
 
-	public function logout()
-	{
-		$this->user = NULL;
+	/** @noinspection PhpUndefinedClassInspection */
 
-		return TRUE;
+	/**
+	 * Check if backend implements actions
+	 *
+	 * @param $actions bitwise-or'ed actions
+	 *
+	 * @return boolean
+	 *
+	 * Returns the supported actions as int to be
+	 * compared with OC_USER_BACKEND_CREATE_USER etc.
+	 */
+	public function implementsActions($actions)
+	{
+		$result = boolval((bool)(OC_USER_BACKEND_CHECK_PASSWORD & $actions));
+		$this->logger->notice("Check the implementation $actions : $result", array('app' => APP_ID));
+
+		return $result;
 	}
 
 	/**
-	 * set the currently active user
+	 * delete a user
 	 *
-	 * @param User|null $user
+	 * @param string $uid The username of the user to delete
+	 *
+	 * @throws Exception
+	 * @return bool
 	 */
-	public function setUser($user)
+	public function deleteUser($uid)
 	{
-		$this->logger->info("Save the user {$user->getUser()} authenticated.");
-
-		$this->user = $user;
+		return FALSE;
 	}
 
 	/**
-	 * get the current active user
+	 * Get a list of all users
 	 *
-	 * @return User
+	 * @param string $search
+	 * @param null   $limit
+	 * @param null   $offset
+	 *
+	 * @throws Exception
+	 * @return array an array of all uids
+	 *
+	 * Get a list of all users.
 	 */
-	public function getUser()
+	public function getUsers($search = '', $limit = NULL, $offset = NULL)
 	{
-		if ($this->user === NULL)
-		{
-			$this->logger->warning('The user is not authenticated.');
+		return FALSE;
+	}
 
-			return NULL;
-		}
+	/**
+	 * check if a user exists
+	 *
+	 * @param string $uid the username
+	 *
+	 * @throws Exception
+	 * @return boolean
+	 */
+	public function userExists($uid)
+	{
+		return FALSE;
+	}
 
-		return $this->user;
+	/**
+	 * get display name of the user
+	 *
+	 * @param string $uid user ID of the user
+	 *
+	 * @throws Exception
+	 * @return string display name
+	 */
+	public function getDisplayName($uid)
+	{
+		return FALSE;
+	}
+
+	/**
+	 * Get a list of all display names
+	 *
+	 * @param string $search
+	 * @param null   $limit
+	 * @param null   $offset
+	 *
+	 * @throws Exception
+	 * @return array an array of  all displayNames (value) and the corresponding uids (key)
+	 *
+	 * Get a list of all display names and user ids.
+	 */
+	public function getDisplayNames($search = '', $limit = NULL, $offset = NULL)
+	{
+		return FALSE;
+	}
+
+	/**
+	 * Check if a user list is available or not
+	 * @throws Exception
+	 * @return boolean if users can be listed or not
+	 */
+	public function hasUserListings()
+	{
+		return FALSE;
 	}
 }
