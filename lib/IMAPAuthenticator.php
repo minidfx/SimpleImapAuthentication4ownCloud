@@ -85,8 +85,6 @@ final class IMAPAuthenticator
 	 */
 	public function checkPassword($uid, $password)
 	{
-		$this->logger->debug("Try for authenticating the user $uid ...");
-
 		if (empty($this->host))
 		{
 			$this->logger->error('The IMAP host is missing. You have to configure the authenticator from the admin console.',
@@ -103,12 +101,12 @@ final class IMAPAuthenticator
 			return FALSE;
 		}
 
-		// INFO: [MiniDfx 15-11-2014 07:32:12] Try to open the inbox in read only without retry.
+		// INFO: [MiniDfx 15-11-2014 07:32:12] Try to open the inbox in read only with 3 retry.
 		$loginResult = imap_open("{{$this->host}:{$this->port}/imap/ssl/debug}INBOX", $uid, $password, OP_READONLY, 3);
 
 		if ($loginResult === FALSE)
 		{
-			$this->logger->warning(implode('', imap_errors()), array('app' => APP_ID));
+			$this->logger->warning(implode(';', imap_errors()), array('app' => APP_ID));
 
 			return FALSE;
 		}
@@ -116,7 +114,15 @@ final class IMAPAuthenticator
 		{
 			if (!$this->userManager->userExists($uid))
 			{
+				// INFO: [minidfx 28-11-2014 09:16:03] Whether the user doesn't exists, create it on the local storage.
 				$this->userManager->createUser($uid, $password);
+			}
+			else
+			{
+				// INFO: [minidfx 28-11-2014 09:13:13] The user password is updated whether the login is successful.
+				$this->userManager->get($uid)->setPassword($password);
+				$this->logger->info("The user password of the user $uid has been updated in the local storage.",
+				                    array('app' => APP_ID));
 			}
 
 			return $uid;
@@ -138,7 +144,6 @@ final class IMAPAuthenticator
 	public function implementsActions($actions)
 	{
 		$result = boolval((bool)(OC_USER_BACKEND_CHECK_PASSWORD & $actions));
-		$this->logger->notice("Check the implementation $actions : $result", array('app' => APP_ID));
 
 		return $result;
 	}
