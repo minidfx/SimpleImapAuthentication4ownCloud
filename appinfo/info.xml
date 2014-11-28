@@ -3,7 +3,7 @@
     <id>user_imapauth</id>
     <name>IMAP user authentication</name>
     <description>Provide the user authentication through IMAP.</description>
-    <version>1.0</version>
+    <version>0.1</version>
     <licence>AGPL</licence>
     <author>Burgy Benjamin</author>
     <requiremin>7</requiremin>
