@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Created by PhpStorm.
- * User: minidfx
+ * User: Burgy Benjamin
  * Date: 23.11.14
  * Time: 11:07
  */

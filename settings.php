@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Created by PhpStorm.
+ * User: Burgy Benjamin
+ * Date: 22.11.14
+ * Time: 21:20
+ */
+
 OC_Util::checkAdminUser();
 
 /** @noinspection SpellCheckingInspection */

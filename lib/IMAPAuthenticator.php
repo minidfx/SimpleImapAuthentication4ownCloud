@@ -2,7 +2,7 @@
 
 /**
  * Created by PhpStorm.
- * User: minidfx
+ * User: Burgy Benjamin
  * Date: 22.11.14
  * Time: 21:20
  */
