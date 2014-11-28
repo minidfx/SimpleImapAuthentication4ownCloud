@@ -12,7 +12,7 @@
 			<input type="text" name="imap_port" value="<?php p($_['imap_port']); ?>">
 			<span id="imap_settings_msg" class="msg success" style="display: none;">Saved</span>
 		</p>
-		
+
 		<input type="hidden" name="requesttoken" value="<?php p($_['requesttoken']) ?>" id="requesttoken">
 
 		<p>
