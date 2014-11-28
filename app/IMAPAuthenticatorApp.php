@@ -9,7 +9,6 @@
 
 namespace OCA\user_imapauth\App;
 
-use OCA\user_imapauth\controller\PageController;
 use OCA\user_imapauth\lib\IMAPAuthenticator;
 use OCP\AppFramework\App;
 use OCP\AppFramework\IAppContainer;
@@ -57,15 +56,6 @@ final class IMAPAuthenticatorApp
 			return new IMAPAuthenticator($c->query('UserManager'),
 			                             $c->query('Config'),
 			                             $c->query('Logger'));
-		});
-
-		$container->registerService('PageController', function (IAppContainer $c)
-		{
-			return new PageController($c->query('AppName'),
-			                          $c->query('Logger'),
-			                          $c->query('Request'),
-			                          $c->query('L10N'),
-			                          $c->query('Config'));
 		});
 
 		/** @var IUserManager $userManager */
