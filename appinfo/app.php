@@ -1,25 +1,37 @@
 <?php
 
-\OCP\App::addNavigationEntry(array(
+/**
+ * Created by PhpStorm.
+ * User: Burgy Benjamin
+ * Date: 22.11.14
+ * Time: 23:34
+ */
 
-	                             // the string under which your app will be referenced in owncloud
-	                             'id'    => APP_ID,
+namespace OCA\user_imapauth\AppInfo;
 
-	                             // sorting weight for the navigation. The higher the number, the higher
-	                             // will it be listed in the navigation
-	                             'order' => 1,
+use OCA\user_imapauth\App\IMAPAuthenticatorApp;
+use OCP\App;
 
-	                             // the route that will be shown on startup
-	                             'href'  => \OCP\Util::linkToRoute('myapp.page.index'),
+if (!defined('APP_ID'))
+{
+	/** @noinspection SpellCheckingInspection */
+	define('APP_ID', 'user_imapauth');
+}
 
-	                             // the icon that will be shown in the navigation
-	                             // this file needs to exist in img/example.png
-	                             'icon'  => \OCP\Util::imagePath('myapp', 'app.svg'),
+/** @var IMAPAuthenticatorApp $application */
+$application = new IMAPAuthenticatorApp();
 
-	                             // the title of your application. This will be used in the
-	                             // navigation or on the settings page of your app
-	                             'name'  => \OC_L10N::get(APP_ID)->t('User authentication IMAP')
-                             ));
+App::addNavigationEntry(array(
 
-// execute OCA\MyApp\Hooks\User::deleteUser before a user is being deleted
-\OCP\Util::connectHook('OC_User', 'preLogin', 'OCA\ImapAuth', 'preLogin');
+	                        // the string under which your app will be referenced in owncloud
+	                        'id'   => APP_ID,
+
+	                        // the title of your application. This will be used in the
+	                        // navigation or on the settings page of your app
+	                        'name' => $application->getL10N()->t('IMAP User Authentication')
+                        ));
+
+/**
+ * register admin settings section
+ */
+App::registerAdmin(APP_ID, 'settings');
