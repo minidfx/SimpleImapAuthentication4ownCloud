@@ -29,12 +29,12 @@ final class IMAPAuthenticator
 	/**
 	 * @var string
 	 */
-	protected $host;
+	private $host;
 
 	/**
 	 * @var int
 	 */
-	protected $port;
+	private $port;
 
 	/**
 	 * @var ILogger
