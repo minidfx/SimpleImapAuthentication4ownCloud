@@ -30,3 +30,7 @@ _ReSharper*/
 
 #PHPStorm
 .idea/
+
+#Composer
+composer.lock
+vendor/
