@@ -9,9 +9,11 @@
 
 namespace OCA\user_imapauth\Tests;
 
+use OCA\user_imapauth\lib\Contracts\IIMAPWrapper;
 use OCA\user_imapauth\lib\IMAPAuthenticator;
 use OCP\IConfig;
 use OCP\ILogger;
+use OCP\IUser;
 use OCP\IUserManager;
 use PHPUnit_Framework_MockObject_MockObject;
 use PHPUnit_Framework_TestCase;
@@ -36,15 +38,29 @@ final class IMAPAuthenticatorTest
 	private $injectedLoggerMock;
 
 	/**
+	 * @var PHPUnit_Framework_MockObject_MockObject|IIMAPWrapper
+	 */
+	private $injectedIMAPWrapperMock;
+
+	/**
 	 * @var IMAPAuthenticator
 	 */
 	private $sut;
+
+	/**
+	 * @var PHPUnit_Framework_MockObject_MockObject|IUser
+	 */
+	private $returnedUserMock;
 
 	/**
 	 * @test
 	 */
 	public function when_checkPassword_is_called_without_host()
 	{
+		$this->injectedConfigMock->expects($this->exactly(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(NULL));
+
 		$this->createSut();
 		$this->injectedLoggerMock->expects($this->once())
 		                         ->method('error')
@@ -59,7 +75,175 @@ final class IMAPAuthenticatorTest
 	private function createSut()
 	{
 		$this->sut = new IMAPAuthenticator($this->injectedUserManagerMock, $this->injectedConfigMock,
-		                                   $this->injectedLoggerMock);
+		                                   $this->injectedLoggerMock, $this->injectedIMAPWrapperMock);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_checkPassword_is_called_without_port()
+	{
+		$this->injectedConfigMock->expects($this->at(0))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue('an host'));
+
+		$this->createSut();
+		$this->injectedLoggerMock->expects($this->once())
+		                         ->method('error')
+		                         ->with('The IMAP port is missing. You have to configure the authenticator from the admin console.',
+		                                array('app' => APP_ID));
+
+		$result = $this->sut->checkPassword('an uid', 'a password');
+
+		$this->assertFalse($result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_checkPassword_is_called_with_wrong_credentials()
+	{
+		/** @var string $returnedHost */
+		$returnedHost = 'an host';
+		/** @var string $returnedPort */
+		$returnedPort = 'a port';
+
+		/** @var array $returnedIMAPErrors */
+		$returnedIMAPErrors = array('error 1',
+		                            'error 2');
+
+		/** @var string $specifiedUsername */
+		$specifiedUsername = 'an uid';
+		/** @var string $specifiedPassword */
+		$specifiedPassword = 'a password';
+
+		$this->injectedConfigMock->expects($this->at(0))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedHost));
+
+		$this->injectedConfigMock->expects($this->at(1))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedPort));
+
+		$this->createSut();
+
+		$this->injectedIMAPWrapperMock->expects($this->once())
+		                              ->method('open')
+		                              ->with("{{$returnedHost}:{$returnedPort}/imap/ssl}INBOX", $specifiedUsername,
+		                                     $specifiedPassword, OP_READONLY, 3)
+		                              ->will($this->returnValue(FALSE));
+
+		$this->injectedIMAPWrapperMock->expects($this->once())
+		                              ->method('getLastErrors')
+		                              ->will($this->returnValue($returnedIMAPErrors));
+
+		$this->injectedLoggerMock->expects($this->once())
+		                         ->method('warning')
+		                         ->with(implode(';', $returnedIMAPErrors), array('app' => APP_ID));
+
+		$result = $this->sut->checkPassword($specifiedUsername, $specifiedPassword);
+
+		$this->assertFalse($result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_checkPassword_is_called_with_valid_credentials_and_user_dont_exists()
+	{
+		/** @var string $returnedHost */
+		$returnedHost = 'an host';
+		/** @var string $returnedPort */
+		$returnedPort = 'a port';
+
+		/** @var string $specifiedUsername */
+		$specifiedUsername = 'an uid';
+		/** @var string $specifiedPassword */
+		$specifiedPassword = 'a password';
+
+		$this->injectedConfigMock->expects($this->at(0))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedHost));
+
+		$this->injectedConfigMock->expects($this->at(1))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedPort));
+
+		$this->createSut();
+
+		$this->injectedIMAPWrapperMock->expects($this->once())
+		                              ->method('open')
+		                              ->with("{{$returnedHost}:{$returnedPort}/imap/ssl}INBOX", $specifiedUsername,
+		                                     $specifiedPassword, OP_READONLY, 3)
+		                              ->will($this->returnValue(TRUE));
+
+		$this->injectedUserManagerMock->expects($this->once())
+		                              ->method('userExists')
+		                              ->with($specifiedUsername)
+		                              ->will($this->returnValue(FALSE));
+
+		$this->injectedUserManagerMock->expects($this->once())
+		                              ->method('createUser')
+		                              ->with($specifiedUsername, $specifiedPassword);
+
+		$result = $this->sut->checkPassword($specifiedUsername, $specifiedPassword);
+
+		$this->assertEquals($specifiedUsername, $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_checkPassword_is_called_with_valid_credentials_and_user_exists()
+	{
+		/** @var string $returnedHost */
+		$returnedHost = 'an host';
+		/** @var string $returnedPort */
+		$returnedPort = 'a port';
+
+		/** @var string $specifiedUsername */
+		$specifiedUsername = 'an uid';
+		/** @var string $specifiedPassword */
+		$specifiedPassword = 'a password';
+
+		$this->injectedConfigMock->expects($this->at(0))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedHost));
+
+		$this->injectedConfigMock->expects($this->at(1))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedPort));
+
+		$this->createSut();
+
+		$this->injectedIMAPWrapperMock->expects($this->once())
+		                              ->method('open')
+		                              ->with("{{$returnedHost}:{$returnedPort}/imap/ssl}INBOX", $specifiedUsername,
+		                                     $specifiedPassword, OP_READONLY, 3)
+		                              ->will($this->returnValue(TRUE));
+
+		$this->injectedUserManagerMock->expects($this->once())
+		                              ->method('userExists')
+		                              ->with($specifiedUsername)
+		                              ->will($this->returnValue(TRUE));
+
+		$this->returnedUserMock->expects($this->once())
+		                       ->method('setPassword')
+		                       ->with($specifiedPassword);
+
+		$this->injectedUserManagerMock->expects($this->once())
+		                              ->method('get')
+		                              ->with($specifiedUsername)
+		                              ->will($this->returnValue($this->returnedUserMock));
+
+		$this->injectedLoggerMock->expects($this->once())
+		                         ->method('info')
+		                         ->with("The user password of the user $specifiedUsername has been updated in the local storage.",
+		                                array('app' => APP_ID));
+
+		$result = $this->sut->checkPassword($specifiedUsername, $specifiedPassword);
+
+		$this->assertEquals($specifiedUsername, $result);
 	}
 
 	protected function setUp()
@@ -69,6 +253,8 @@ final class IMAPAuthenticatorTest
 		$this->injectedConfigMock      = $this->getMock('\OCP\IConfig');
 		$this->injectedUserManagerMock = $this->getMock('\OCP\IUserManager');
 		$this->injectedLoggerMock      = $this->getMock('\OCP\ILogger');
+		$this->injectedIMAPWrapperMock = $this->getMock('\OCA\user_imapauth\lib\Contracts\IIMAPWrapper');
+		$this->returnedUserMock        = $this->getMock('\OCP\IUser');
 	}
 }
  
