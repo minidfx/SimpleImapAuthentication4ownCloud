@@ -246,6 +246,114 @@ final class IMAPAuthenticatorTest
 		$this->assertEquals($specifiedUsername, $result);
 	}
 
+	/**
+	 * @test
+	 */
+	public function when_implementsActions_is_called_with_OC_USER_BACKEND_CHECK_PASSWORD()
+	{
+		$this->createSut();
+
+		/** @noinspection PhpParamsInspection */
+		$result = $this->sut->implementsActions(OC_USER_BACKEND_CHECK_PASSWORD);
+
+		$this->assertTrue($result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_implementsActions_is_called_with_different_OC_USER_BACKEND_CHECK_PASSWORD_as_actions()
+	{
+		$this->createSut();
+
+		foreach (array(OC_USER_BACKEND_CREATE_USER,
+		               OC_USER_BACKEND_SET_PASSWORD,
+		               OC_USER_BACKEND_GET_HOME,
+		               OC_USER_BACKEND_GET_DISPLAYNAME,
+		               OC_USER_BACKEND_SET_DISPLAYNAME,
+		               OC_USER_BACKEND_PROVIDE_AVATAR,
+		               OC_USER_BACKEND_COUNT_USERS
+		         ) as $constant)
+		{
+			/** @noinspection PhpParamsInspection */
+			$result = $this->sut->implementsActions($constant);
+
+			$this->assertFalse($result);
+		}
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_deleteUser_is_called()
+	{
+		$this->createSut();
+
+		$result = $this->sut->deleteUser('an uid');
+
+		$this->assertFalse($result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_getUsers_is_called()
+	{
+		$this->createSut();
+
+		$result = $this->sut->getUsers('a search query', 'a limit', 'an offset');
+
+		$this->assertFalse($result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_userExists_is_called()
+	{
+		$this->createSut();
+
+		$result = $this->sut->userExists('an uid');
+
+		$this->assertFalse($result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_getDisplayName_is_called()
+	{
+		$this->createSut();
+
+		$result = $this->sut->getDisplayName('an uid');
+
+		$this->assertFalse($result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_getDisplayNames_is_called()
+	{
+		$this->createSut();
+
+		$result = $this->sut->getDisplayNames('a search query', 'a limit', 'an offset');
+
+		$this->assertFalse($result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_hasUserListings_is_called()
+	{
+		$this->createSut();
+
+		$result = $this->sut->hasUserListings();
+
+		$this->assertFalse($result);
+	}
+
 	protected function setUp()
 	{
 		parent::setUp();
