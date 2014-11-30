@@ -152,7 +152,7 @@ final class IMAPAuthenticator
 	 */
 	public function implementsActions($actions)
 	{
-		$result = boolval((bool)(OC_USER_BACKEND_CHECK_PASSWORD & $actions));
+		$result = (bool)(OC_USER_BACKEND_CHECK_PASSWORD & $actions);
 
 		return $result;
 	}
