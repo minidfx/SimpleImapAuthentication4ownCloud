@@ -10,6 +10,7 @@
 namespace OCA\user_imapauth\App;
 
 use OCA\user_imapauth\lib\IMAPAuthenticator;
+use OCA\user_imapauth\lib\IMAPWrapper;
 use OCP\AppFramework\App;
 use OCP\AppFramework\IAppContainer;
 use OCP\IL10N;
@@ -53,9 +54,8 @@ final class IMAPAuthenticatorApp
 
 		$container->registerService('IMAPUserManager', function (IAppContainer $c)
 		{
-			return new IMAPAuthenticator($c->query('UserManager'),
-			                             $c->query('Config'),
-			                             $c->query('Logger'));
+			return new IMAPAuthenticator($c->query('UserManager'), $c->query('Config'), $c->query('Logger'),
+			                             new IMAPWrapper());
 		});
 
 		/** @var IUserManager $userManager */

@@ -11,6 +11,7 @@ namespace OCA\user_imapauth\lib;
 
 use Exception;
 use OC;
+use OCA\user_imapauth\lib\Contracts\IIMAPWrapper;
 use OCP\IConfig;
 use OCP\ILogger;
 use OCP\IUserManager;
@@ -51,6 +52,11 @@ final class IMAPAuthenticator
 	 */
 	private $config;
 
+	/**
+	 * @var IIMAPWrapper
+	 */
+	private $imapWrapper;
+
 	/** @noinspection SpellCheckingInspection */
 
 	/**
@@ -59,17 +65,19 @@ final class IMAPAuthenticator
 	 * @param IUserManager $userManager
 	 * @param IConfig      $config
 	 * @param ILogger      $logger
+	 * @param IIMAPWrapper $imapWrapper
 	 *
 	 * @internal param IUserSession $userSession
 	 */
-	public function __construct(IUserManager $userManager, IConfig $config, ILogger $logger)
+	public function __construct(IUserManager $userManager, IConfig $config, ILogger $logger, IIMAPWrapper $imapWrapper)
 	{
-		$this->host = $config->getAppValue(APP_ID, 'imap_uri');
-		$this->port = $config->getAppValue(APP_ID, 'imap_port');
+		$this->host = $config->getAppValue(APP_ID, 'imap_uri', '');
+		$this->port = $config->getAppValue(APP_ID, 'imap_port', '');
 
 		$this->userManager = $userManager;
 		$this->config      = $config;
 		$this->logger      = $logger;
+		$this->imapWrapper = $imapWrapper;
 	}
 
 	/**
@@ -102,11 +110,12 @@ final class IMAPAuthenticator
 		}
 
 		// INFO: [MiniDfx 15-11-2014 07:32:12] Try to open the inbox in read only with 3 retry.
-		$loginResult = imap_open("{{$this->host}:{$this->port}/imap/ssl/debug}INBOX", $uid, $password, OP_READONLY, 3);
+		$loginResult = $this->imapWrapper->open("{{$this->host}:{$this->port}/imap/ssl}INBOX", $uid, $password,
+		                                        OP_READONLY, 3);
 
 		if ($loginResult === FALSE)
 		{
-			$this->logger->warning(implode(';', imap_errors()), array('app' => APP_ID));
+			$this->logger->warning(implode(';', $this->imapWrapper->getLastErrors()), array('app' => APP_ID));
 
 			return FALSE;
 		}
@@ -119,7 +128,7 @@ final class IMAPAuthenticator
 			}
 			else
 			{
-				// INFO: [minidfx 28-11-2014 09:13:13] The user password is updated whether the login is successful.
+				// INFO: [minidfx 28-11-2014 09:13:13] Update the user password saved in the local storage.
 				$this->userManager->get($uid)->setPassword($password);
 				$this->logger->info("The user password of the user $uid has been updated in the local storage.",
 				                    array('app' => APP_ID));
