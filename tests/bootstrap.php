@@ -24,25 +24,31 @@ spl_autoload_register(function ($class)
 	/** @var string $startsWith */
 	$startsWith = substr($class, 0, 3);
 	/** @var string $fileToLoad */
-	$fileToLoad = str_replace('\\', '/', $class);
+	$fileToLoad = NULL;
 
 	if ($startsWith === 'OCA')
 	{
+		$fileToLoad = str_replace('\\', '/', $class);
 		$fileToLoad = str_replace('OCA/user_imapauth/', '', $fileToLoad);
 		$fileToLoad = __DIR__ . "/../$fileToLoad.php";
 	}
 	else if ($startsWith === 'OCP')
 	{
+		$fileToLoad = str_replace('\\', '/', $class);
 		$fileToLoad = str_replace('OCP/', '', $fileToLoad);
 		$fileToLoad = __DIR__ . "/Interfaces/$fileToLoad.php";
 	}
 	else if ($startsWith === 'OC_')
 	{
+		$fileToLoad = str_replace('\\', '/', $class);
 		$fileToLoad = __DIR__ . "/Interfaces/$fileToLoad.php";
 	}
 
-	$fileToLoad = strtolower($fileToLoad);
+	if ($fileToLoad !== NULL)
+	{
+		$fileToLoad = strtolower($fileToLoad);
 
-	/** @noinspection PhpIncludeInspection */
-	require_once $fileToLoad;
+		/** @noinspection PhpIncludeInspection */
+		require_once $fileToLoad;
+	}
 });
