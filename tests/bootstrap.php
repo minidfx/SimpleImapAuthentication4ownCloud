@@ -29,15 +29,20 @@ spl_autoload_register(function ($class)
 	if ($startsWith === 'OCA')
 	{
 		$fileToLoad = str_replace('OCA/user_imapauth/', '', $fileToLoad);
-		require_once __DIR__ . "/../$fileToLoad.php";
+		$fileToLoad = __DIR__ . "/../$fileToLoad.php";
 	}
 	else if ($startsWith === 'OCP')
 	{
 		$fileToLoad = str_replace('OCP/', '', $fileToLoad);
-		require_once __DIR__ . "/Interfaces/$fileToLoad.php";
+		$fileToLoad = __DIR__ . "/Interfaces/$fileToLoad.php";
 	}
 	else if ($startsWith === 'OC_')
 	{
-		require_once __DIR__ . "/Interfaces/$fileToLoad.php";
+		$fileToLoad = __DIR__ . "/Interfaces/$fileToLoad.php";
 	}
+
+	$fileToLoad = strtolower($fileToLoad);
+
+	/** @noinspection PhpIncludeInspection */
+	require_once $fileToLoad;
 });
