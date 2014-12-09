@@ -57,27 +57,30 @@ final class IMAPAuthenticatorTest
 	 */
 	public function when_checkPassword_is_called_without_host()
 	{
+		/** @var string $specifiedUId */
+		$specifiedUId = 'an uid';
+
 		$this->injectedConfigMock->expects($this->at(0))
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue(NULL));
 
 		$this->injectedConfigMock->expects($this->at(1))
 		                         ->method('getAppValue')
-		                         ->will($this->returnValue(NULL));
+		                         ->will($this->returnValue(1));
 
 		$this->injectedConfigMock->expects($this->at(2))
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue(2));
 
+		$this->injectedConfigMock->expects($this->once())
+		                         ->method('setAppValue')
+		                         ->with(APP_ID, 'imap_uri', 'localhost');
+
 		$this->createSut();
-		$this->injectedLoggerMock->expects($this->once())
-		                         ->method('error')
-		                         ->with('The IMAP host is missing. You have to configure the authenticator from the admin console.',
-		                                array('app' => APP_ID));
 
-		$result = $this->sut->checkPassword('an uid', 'a password');
+		$result = $this->sut->checkPassword($specifiedUId, 'a password');
 
-		$this->assertFalse($result);
+		$this->assertEquals($specifiedUId, $result);
 	}
 
 	private function createSut()
@@ -88,15 +91,33 @@ final class IMAPAuthenticatorTest
 
 	/**
 	 * @test
-	 * @expectedException InvalidArgumentException
 	 */
-	public function when_Sut_is_created_with_max_retries_different_int()
+	public function when_checkPassword_is_called_with_empty_host()
 	{
+		/** @var string $specifiedUId */
+		$specifiedUId = 'an uid';
+
+		$this->injectedConfigMock->expects($this->at(0))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(''));
+
+		$this->injectedConfigMock->expects($this->at(1))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(1));
+
 		$this->injectedConfigMock->expects($this->at(2))
 		                         ->method('getAppValue')
-		                         ->will($this->returnValue('a string'));
+		                         ->will($this->returnValue(2));
+
+		$this->injectedLoggerMock->expects($this->once())
+		                         ->method('error')
+		                         ->with('The IMAP host is missing. You have to configure the authenticator from the admin console.');
 
 		$this->createSut();
+
+		$result = $this->sut->checkPassword($specifiedUId, 'a password');
+
+		$this->assertFalse($result);
 	}
 
 	/**
@@ -104,6 +125,9 @@ final class IMAPAuthenticatorTest
 	 */
 	public function when_checkPassword_is_called_without_port()
 	{
+		/** @var string $expectedResult */
+		$expectedResult = 'an uid';
+
 		$this->injectedConfigMock->expects($this->at(0))
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue('an host'));
@@ -112,10 +136,66 @@ final class IMAPAuthenticatorTest
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue(2));
 
+		$this->injectedConfigMock->expects($this->once())
+		                         ->method('setAppValue')
+		                         ->with(APP_ID, 'imap_port', 993);
+
+		$this->createSut();
+
+		$result = $this->sut->checkPassword($expectedResult, 'a password');
+
+		$this->assertEquals($expectedResult, $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_checkPassword_is_called_with_port_NaN()
+	{
+		$this->injectedConfigMock->expects($this->at(0))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue('an host'));
+
+		$this->injectedConfigMock->expects($this->at(1))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue('a port'));
+
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(2));
+
 		$this->createSut();
 		$this->injectedLoggerMock->expects($this->once())
 		                         ->method('error')
-		                         ->with('The IMAP port is missing. You have to configure the authenticator from the admin console.',
+		                         ->with('The IMAP port is not a valid value. You have to configure the authenticator from the admin console.',
+		                                array('app' => APP_ID));
+
+		$result = $this->sut->checkPassword('an uid', 'a password');
+
+		$this->assertFalse($result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_checkPassword_is_called_with_max_reties_NaN()
+	{
+		$this->injectedConfigMock->expects($this->at(0))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue('an host'));
+
+		$this->injectedConfigMock->expects($this->at(1))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(1));
+
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue('max retries'));
+
+		$this->createSut();
+		$this->injectedLoggerMock->expects($this->once())
+		                         ->method('error')
+		                         ->with('The max retries is not a valid value. You have to configure the authenticator from the admin console.',
 		                                array('app' => APP_ID));
 
 		$result = $this->sut->checkPassword('an uid', 'a password');
@@ -131,7 +211,7 @@ final class IMAPAuthenticatorTest
 		/** @var string $returnedHost */
 		$returnedHost = 'an host';
 		/** @var string $returnedPort */
-		$returnedPort = 'a port';
+		$returnedPort = 1;
 
 		/** @var array $returnedIMAPErrors */
 		$returnedIMAPErrors = array('error 1',
@@ -185,7 +265,7 @@ final class IMAPAuthenticatorTest
 		/** @var string $returnedHost */
 		$returnedHost = 'an host';
 		/** @var string $returnedPort */
-		$returnedPort = 'a port';
+		$returnedPort = 1;
 
 		/** @var string $specifiedUsername */
 		$specifiedUsername = 'an uid';
@@ -236,7 +316,7 @@ final class IMAPAuthenticatorTest
 		/** @var string $returnedHost */
 		$returnedHost = 'an host';
 		/** @var string $returnedPort */
-		$returnedPort = 'a port';
+		$returnedPort = 1;
 
 		/** @var string $specifiedUsername */
 		$specifiedUsername = 'an uid';

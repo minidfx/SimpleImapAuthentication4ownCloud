@@ -76,12 +76,28 @@ final class IMAPAuthenticator
 	 */
 	public function __construct(IUserManager $userManager, IConfig $config, ILogger $logger, IIMAPWrapper $imapWrapper)
 	{
-		$this->host       = $config->getAppValue(APP_ID, 'imap_uri', '');
-		$this->port       = $config->getAppValue(APP_ID, 'imap_port', '');
-		$this->maxRetries = $config->getAppValue(APP_ID, 'imap_max_retries', 2);
+		$host       = $config->getAppValue(APP_ID, 'imap_uri', NULL);
+		$port       = $config->getAppValue(APP_ID, 'imap_port', NULL);
+		$maxRetries = $config->getAppValue(APP_ID, 'imap_max_retries', NULL);
 
-		if (!is_int($this->maxRetries))
-			throw new InvalidArgumentException('Max retries parameter must be an integer valid.');
+		if ($host === NULL)
+		{
+			$config->setAppValue(APP_ID, 'imap_uri', $host = 'localhost');
+		}
+
+		if ($port === NULL)
+		{
+			$config->setAppValue(APP_ID, 'imap_port', $port = 993);
+		}
+
+		if ($maxRetries === NULL)
+		{
+			$config->setAppValue(APP_ID, 'max_retries', $maxRetries = 2);
+		}
+
+		$this->host       = $host;
+		$this->port       = intval($port);
+		$this->maxRetries = intval($maxRetries);
 
 		$this->userManager = $userManager;
 		$this->config      = $config;
@@ -110,9 +126,17 @@ final class IMAPAuthenticator
 			return FALSE;
 		}
 
-		if (empty($this->port))
+		if ($this->port === 0)
 		{
-			$this->logger->error('The IMAP port is missing. You have to configure the authenticator from the admin console.',
+			$this->logger->error("The IMAP port is not a valid value. You have to configure the authenticator from the admin console.",
+			                     array('app' => APP_ID));
+
+			return FALSE;
+		}
+
+		if ($this->maxRetries === 0)
+		{
+			$this->logger->error("The max retries is not a valid value. You have to configure the authenticator from the admin console.",
 			                     array('app' => APP_ID));
 
 			return FALSE;
