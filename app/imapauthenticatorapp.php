@@ -9,6 +9,7 @@
 
 namespace OCA\user_imapauth\App;
 
+use OCA\user_imapauth\App\Contracts\IIMAPAuthenticatorApp;
 use OCA\user_imapauth\lib\IMAPAuthenticator;
 use OCA\user_imapauth\lib\IMAPWrapper;
 use OCP\AppFramework\App;
@@ -19,6 +20,8 @@ use OCP\IUserManager;
 final class IMAPAuthenticatorApp
 	extends
 	App
+	implements
+	IIMAPAuthenticatorApp
 {
 	/**
 	 * Initializes an instance of <b>IMAPAuthenticatorApp</b>
