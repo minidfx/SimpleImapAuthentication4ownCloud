@@ -17,4 +17,11 @@ interface IIMAPAuthenticatorApp
 	 * @inheritdoc
 	 */
 	public function registerUserBackend();
+
+	/**
+	 * Initializes the application.
+	 *
+	 * @inheritdoc
+	 */
+	public function init();
 } 

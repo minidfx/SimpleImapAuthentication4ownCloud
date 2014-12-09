@@ -32,6 +32,9 @@ final class IMAPAuthBootstrapperTest
 		$this->createSut();
 
 		$this->injectedApp->expects($this->once())
+		                  ->method('init');
+
+		$this->injectedApp->expects($this->once())
 		                  ->method('registerUserBackend');
 
 		$this->sut->init();

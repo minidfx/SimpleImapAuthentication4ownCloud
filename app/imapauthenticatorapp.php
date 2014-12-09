@@ -9,6 +9,7 @@
 
 namespace OCA\user_imapauth\App;
 
+use Exception;
 use OCA\user_imapauth\App\Contracts\IIMAPAuthenticatorApp;
 use OCA\user_imapauth\lib\IMAPAuthenticator;
 use OCA\user_imapauth\lib\IMAPWrapper;
@@ -24,15 +25,55 @@ final class IMAPAuthenticatorApp
 	IIMAPAuthenticatorApp
 {
 	/**
+	 * @var App
+	 */
+	private $app;
+
+	/**
+	 * @var array
+	 */
+	private $urlParams;
+
+	/**
 	 * Initializes an instance of <b>IMAPAuthenticatorApp</b>
 	 *
 	 * @param array $urlParams
 	 */
 	public function __construct(array $urlParams = array())
 	{
-		parent::__construct(APP_ID, $urlParams);
+		$this->urlParams = $urlParams;
+	}
 
-		$container = $this->getContainer();
+	public function registerUserBackend()
+	{
+		if ($this->app === NULL)
+		{
+			throw new Exception('Invalid operation, the app must be initialized!');
+		}
+
+		/** @var IAppContainer $container */
+		$container = $this->app->getContainer();
+
+		/** @var IUserManager $userManager */
+		$userManager = $container->query('UserManager');
+
+		/** @var IMAPAuthenticator $imapUserManager */
+		$imapUserManager = $container->query('IMAPUserManager');
+
+		$userManager->registerBackend($imapUserManager);
+	}
+
+	/**
+	 * Initializes the application.
+	 *
+	 * @inheritdoc
+	 */
+	public function init()
+	{
+		$this->app = new App(APP_ID, $this->urlParams);
+
+		/** @var IAppContainer $container */
+		$container = $this->app->getContainer();
 
 		$container->registerService('L10N', function (IAppContainer $c)
 		{
@@ -54,6 +95,7 @@ final class IMAPAuthenticatorApp
 			return $c->query('ServerContainer')->getLogger();
 		});
 
+		/** @noinspection PhpUnusedParameterInspection */
 		$container->registerService('IMAPWrapper', function (IAppContainer $c)
 		{
 			return new IMAPWrapper();
@@ -64,19 +106,5 @@ final class IMAPAuthenticatorApp
 			return new IMAPAuthenticator($c->query('UserManager'), $c->query('Config'), $c->query('Logger'),
 			                             $c->query('IMAPWrapper'));
 		});
-	}
-
-	public function registerUserBackend()
-	{
-		/** @var IAppContainer $container */
-		$container = $this->getContainer();
-
-		/** @var IUserManager $userManager */
-		$userManager = $container->query('UserManager');
-
-		/** @var IMAPAuthenticator $imapUserManager */
-		$imapUserManager = $container->query('IMAPUserManager');
-
-		$userManager->registerBackend($imapUserManager);
 	}
 }

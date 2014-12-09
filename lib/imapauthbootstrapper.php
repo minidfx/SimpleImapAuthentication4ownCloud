@@ -44,6 +44,7 @@ final class IMAPAuthBootstrapper
 			define('APP_ID', 'user_imapauth');
 		}
 
+		$this->authenticator->init();
 		$this->authenticator->registerUserBackend();
 	}
 
