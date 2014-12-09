@@ -9,7 +9,46 @@
 
 namespace OCA\user_imapauth\lib;
 
-final class IMAPAuthBootstrapper
-{
+use OCA\user_imapauth\App\Contracts\IIMAPAuthenticatorApp;
+use OCA\user_imapauth\lib\Contracts\IIMAPAuthBootstrapper;
+use OCP\App;
 
-} 
+/**
+ * Implementations of the IMAP authenticator.
+ * @package OCA\user_imapauth\lib
+ */
+final class IMAPAuthBootstrapper
+	implements
+	IIMAPAuthBootstrapper
+{
+	/**
+	 * @var IIMAPAuthenticatorApp
+	 */
+	private $authenticator;
+
+	/**
+	 * Initializes an instance of <b>imapauthbootstrapper</b>
+	 *
+	 * @param IIMAPAuthenticatorApp $authenticator
+	 */
+	public function __construct(IIMAPAuthenticatorApp $authenticator)
+	{
+		$this->authenticator = $authenticator;
+	}
+
+	public function init()
+	{
+		if (!defined('APP_ID'))
+		{
+			/** @noinspection SpellCheckingInspection */
+			define('APP_ID', 'user_imapauth');
+		}
+
+		$this->authenticator->registerUserBackend();
+	}
+
+	public function registerAdminFunctionalities()
+	{
+		App::registerAdmin(APP_ID, 'settings');
+	}
+}

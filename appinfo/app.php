@@ -9,29 +9,16 @@
 
 namespace OCA\user_imapauth\AppInfo;
 
+use OCA\user_imapauth\App\Contracts\IIMAPAuthenticatorApp;
 use OCA\user_imapauth\App\IMAPAuthenticatorApp;
-use OCP\App;
+use OCA\user_imapauth\lib\Contracts\IIMAPAuthBootstrapper;
+use OCA\user_imapauth\lib\IMAPAuthBootstrapper;
 
-if (!defined('APP_ID'))
-{
-	/** @noinspection SpellCheckingInspection */
-	define('APP_ID', 'user_imapauth');
-}
+/** @var IIMAPAuthenticatorApp $app */
+$app = new IMAPAuthenticatorApp();
 
-/** @var IMAPAuthenticatorApp $application */
-$application = new IMAPAuthenticatorApp();
+/** @var IIMAPAuthBootstrapper $bootstrapper */
+$bootstrapper = new IMAPAuthBootstrapper($app);
 
-App::addNavigationEntry(array(
-
-	                        // the string under which your app will be referenced in owncloud
-	                        'id'   => APP_ID,
-
-	                        // the title of your application. This will be used in the
-	                        // navigation or on the settings page of your app
-	                        'name' => $application->getL10N()->t('IMAP User Authentication')
-                        ));
-
-/**
- * register admin settings section
- */
-App::registerAdmin(APP_ID, 'settings');
+$bootstrapper->init();
+$bootstrapper->registerAdminFunctionalities();
