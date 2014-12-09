@@ -9,7 +9,6 @@
 
 namespace OCA\user_imapauth\Tests;
 
-use InvalidArgumentException;
 use OCA\user_imapauth\lib\Contracts\IIMAPWrapper;
 use OCA\user_imapauth\lib\IMAPAuthenticator;
 use OCP\IConfig;

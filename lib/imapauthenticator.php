@@ -10,7 +10,6 @@
 namespace OCA\user_imapauth\lib;
 
 use Exception;
-use InvalidArgumentException;
 use OC;
 use OCA\user_imapauth\lib\Contracts\IIMAPWrapper;
 use OCP\IConfig;

@@ -13,7 +13,6 @@ use OCA\user_imapauth\lib\IMAPAuthenticator;
 use OCA\user_imapauth\lib\IMAPWrapper;
 use OCP\AppFramework\App;
 use OCP\AppFramework\IAppContainer;
-use OCP\IL10N;
 use OCP\ILogger;
 use OCP\IUserManager;
 
@@ -65,21 +64,5 @@ final class IMAPAuthenticatorApp
 		$imapUserManager = $container->query('IMAPUserManager');
 
 		$userManager->registerBackend($imapUserManager);
-	}
-
-	/**
-	 * @return ILogger
-	 */
-	public function getLogger()
-	{
-		return $this->getContainer()->query('Logger');
-	}
-
-	/**
-	 * @return IL10N
-	 */
-	public function getL10N()
-	{
-		return $this->getContainer()->query('L10N');
 	}
 }
