@@ -238,7 +238,7 @@ final class IMAPAuthenticatorTest
 
 		$this->injectedLoggerMock->expects($this->once())
 		                         ->method('info')
-		                         ->with("The user password of the user $specifiedUsername has been updated in the local storage.",
+		                         ->with("The password of the user $specifiedUsername has been updated in the local storage.",
 		                                array('app' => APP_ID));
 
 		$result = $this->sut->checkPassword($specifiedUsername, $specifiedPassword);
