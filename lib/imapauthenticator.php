@@ -123,14 +123,14 @@ final class IMAPAuthenticator
 		{
 			if (!$this->userManager->userExists($uid))
 			{
-				// INFO: [minidfx 28-11-2014 09:16:03] Whether the user doesn't exists, create it on the local storage.
+				// INFO: [minidfx 28-11-2014 09:16:03] Whether the user doesn't exist, create it on the local storage.
 				$this->userManager->createUser($uid, $password);
 			}
 			else
 			{
 				// INFO: [minidfx 28-11-2014 09:13:13] Update the user password saved in the local storage.
 				$this->userManager->get($uid)->setPassword($password);
-				$this->logger->info("The user password of the user $uid has been updated in the local storage.",
+				$this->logger->info("The password of the user $uid has been updated in the local storage.",
 				                    array('app' => APP_ID));
 			}
 
