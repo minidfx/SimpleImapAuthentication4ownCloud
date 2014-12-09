@@ -1,3 +1,8 @@
 #imapauth input.imap_uri {
     width: 300px;
 }
+
+#imapauth input.imap_port,
+#imapauth input.imap_max_retries {
+    width: 50px;
+}

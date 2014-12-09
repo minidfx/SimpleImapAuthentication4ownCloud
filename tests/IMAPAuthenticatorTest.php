@@ -9,6 +9,7 @@
 
 namespace OCA\user_imapauth\Tests;
 
+use InvalidArgumentException;
 use OCA\user_imapauth\lib\Contracts\IIMAPWrapper;
 use OCA\user_imapauth\lib\IMAPAuthenticator;
 use OCP\IConfig;
@@ -57,9 +58,17 @@ final class IMAPAuthenticatorTest
 	 */
 	public function when_checkPassword_is_called_without_host()
 	{
-		$this->injectedConfigMock->expects($this->exactly(2))
+		$this->injectedConfigMock->expects($this->at(0))
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue(NULL));
+
+		$this->injectedConfigMock->expects($this->at(1))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(NULL));
+
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(2));
 
 		$this->createSut();
 		$this->injectedLoggerMock->expects($this->once())
@@ -80,12 +89,29 @@ final class IMAPAuthenticatorTest
 
 	/**
 	 * @test
+	 * @expectedException InvalidArgumentException
+	 */
+	public function when_Sut_is_created_with_max_retries_different_int()
+	{
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue('a string'));
+
+		$this->createSut();
+	}
+
+	/**
+	 * @test
 	 */
 	public function when_checkPassword_is_called_without_port()
 	{
 		$this->injectedConfigMock->expects($this->at(0))
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue('an host'));
+
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(2));
 
 		$this->createSut();
 		$this->injectedLoggerMock->expects($this->once())
@@ -116,6 +142,8 @@ final class IMAPAuthenticatorTest
 		$specifiedUsername = 'an uid';
 		/** @var string $specifiedPassword */
 		$specifiedPassword = 'a password';
+		/** @var int $returnedMaxRetries */
+		$returnedMaxRetries = 2;
 
 		$this->injectedConfigMock->expects($this->at(0))
 		                         ->method('getAppValue')
@@ -125,12 +153,16 @@ final class IMAPAuthenticatorTest
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue($returnedPort));
 
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedMaxRetries));
+
 		$this->createSut();
 
 		$this->injectedIMAPWrapperMock->expects($this->once())
 		                              ->method('open')
 		                              ->with("{{$returnedHost}:{$returnedPort}/imap/ssl}INBOX", $specifiedUsername,
-		                                     $specifiedPassword, OP_READONLY, 3)
+		                                     $specifiedPassword, OP_READONLY, $returnedMaxRetries)
 		                              ->will($this->returnValue(FALSE));
 
 		$this->injectedIMAPWrapperMock->expects($this->once())
@@ -160,6 +192,8 @@ final class IMAPAuthenticatorTest
 		$specifiedUsername = 'an uid';
 		/** @var string $specifiedPassword */
 		$specifiedPassword = 'a password';
+		/** @var int $returnedMaxRetries */
+		$returnedMaxRetries = 2;
 
 		$this->injectedConfigMock->expects($this->at(0))
 		                         ->method('getAppValue')
@@ -169,12 +203,16 @@ final class IMAPAuthenticatorTest
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue($returnedPort));
 
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedMaxRetries));
+
 		$this->createSut();
 
 		$this->injectedIMAPWrapperMock->expects($this->once())
 		                              ->method('open')
 		                              ->with("{{$returnedHost}:{$returnedPort}/imap/ssl}INBOX", $specifiedUsername,
-		                                     $specifiedPassword, OP_READONLY, 3)
+		                                     $specifiedPassword, OP_READONLY, $returnedMaxRetries)
 		                              ->will($this->returnValue(TRUE));
 
 		$this->injectedUserManagerMock->expects($this->once())
@@ -205,6 +243,8 @@ final class IMAPAuthenticatorTest
 		$specifiedUsername = 'an uid';
 		/** @var string $specifiedPassword */
 		$specifiedPassword = 'a password';
+		/** @var int $returnedMaxRetries */
+		$returnedMaxRetries = 2;
 
 		$this->injectedConfigMock->expects($this->at(0))
 		                         ->method('getAppValue')
@@ -214,12 +254,16 @@ final class IMAPAuthenticatorTest
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue($returnedPort));
 
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedMaxRetries));
+
 		$this->createSut();
 
 		$this->injectedIMAPWrapperMock->expects($this->once())
 		                              ->method('open')
 		                              ->with("{{$returnedHost}:{$returnedPort}/imap/ssl}INBOX", $specifiedUsername,
-		                                     $specifiedPassword, OP_READONLY, 3)
+		                                     $specifiedPassword, OP_READONLY, $returnedMaxRetries)
 		                              ->will($this->returnValue(TRUE));
 
 		$this->injectedUserManagerMock->expects($this->once())
@@ -251,6 +295,10 @@ final class IMAPAuthenticatorTest
 	 */
 	public function when_implementsActions_is_called_with_OC_USER_BACKEND_CHECK_PASSWORD()
 	{
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(2));
+
 		$this->createSut();
 
 		/** @noinspection PhpParamsInspection */
@@ -264,6 +312,10 @@ final class IMAPAuthenticatorTest
 	 */
 	public function when_implementsActions_is_called_with_different_OC_USER_BACKEND_CHECK_PASSWORD_as_actions()
 	{
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(2));
+
 		$this->createSut();
 
 		foreach (array(OC_USER_BACKEND_CREATE_USER,
@@ -287,6 +339,10 @@ final class IMAPAuthenticatorTest
 	 */
 	public function when_deleteUser_is_called()
 	{
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(2));
+
 		$this->createSut();
 
 		$result = $this->sut->deleteUser('an uid');
@@ -299,10 +355,15 @@ final class IMAPAuthenticatorTest
 	 */
 	public function when_getUsers_is_called()
 	{
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(2));
+
 		$this->createSut();
 
 		$result = $this->sut->getUsers('a search query', 'a limit', 'an offset');
 
+		/** @noinspection PhpParamsInspection */
 		$this->assertFalse($result);
 	}
 
@@ -311,6 +372,10 @@ final class IMAPAuthenticatorTest
 	 */
 	public function when_userExists_is_called()
 	{
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(2));
+
 		$this->createSut();
 
 		$result = $this->sut->userExists('an uid');
@@ -323,6 +388,10 @@ final class IMAPAuthenticatorTest
 	 */
 	public function when_getDisplayName_is_called()
 	{
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(2));
+
 		$this->createSut();
 
 		$result = $this->sut->getDisplayName('an uid');
@@ -335,10 +404,15 @@ final class IMAPAuthenticatorTest
 	 */
 	public function when_getDisplayNames_is_called()
 	{
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(2));
+
 		$this->createSut();
 
 		$result = $this->sut->getDisplayNames('a search query', 'a limit', 'an offset');
 
+		/** @noinspection PhpParamsInspection */
 		$this->assertFalse($result);
 	}
 
@@ -347,6 +421,10 @@ final class IMAPAuthenticatorTest
 	 */
 	public function when_hasUserListings_is_called()
 	{
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue(2));
+
 		$this->createSut();
 
 		$result = $this->sut->hasUserListings();

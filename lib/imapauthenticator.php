@@ -10,6 +10,7 @@
 namespace OCA\user_imapauth\lib;
 
 use Exception;
+use InvalidArgumentException;
 use OC;
 use OCA\user_imapauth\lib\Contracts\IIMAPWrapper;
 use OCP\IConfig;
@@ -57,6 +58,11 @@ final class IMAPAuthenticator
 	 */
 	private $imapWrapper;
 
+	/**
+	 * @var int
+	 */
+	private $maxRetries;
+
 	/** @noinspection SpellCheckingInspection */
 
 	/**
@@ -71,8 +77,12 @@ final class IMAPAuthenticator
 	 */
 	public function __construct(IUserManager $userManager, IConfig $config, ILogger $logger, IIMAPWrapper $imapWrapper)
 	{
-		$this->host = $config->getAppValue(APP_ID, 'imap_uri', '');
-		$this->port = $config->getAppValue(APP_ID, 'imap_port', '');
+		$this->host       = $config->getAppValue(APP_ID, 'imap_uri', '');
+		$this->port       = $config->getAppValue(APP_ID, 'imap_port', '');
+		$this->maxRetries = $config->getAppValue(APP_ID, 'imap_max_retries', 2);
+
+		if (!is_int($this->maxRetries))
+			throw new InvalidArgumentException('Max retries parameter must be an integer valid.');
 
 		$this->userManager = $userManager;
 		$this->config      = $config;
@@ -109,9 +119,9 @@ final class IMAPAuthenticator
 			return FALSE;
 		}
 
-		// INFO: [MiniDfx 15-11-2014 07:32:12] Try to open the inbox in read only with 3 retry.
+		// INFO: [MiniDfx 15-11-2014 07:32:12] Try to open the inbox in read only.
 		$loginResult = $this->imapWrapper->open("{{$this->host}:{$this->port}/imap/ssl}INBOX", $uid, $password,
-		                                        OP_READONLY, 3);
+		                                        OP_READONLY, $this->maxRetries);
 
 		if ($loginResult === FALSE)
 		{

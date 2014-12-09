@@ -21,5 +21,6 @@ $template = new OC_Template(APP_ID, 'settings');
 
 $template->assign('imap_uri', OCP\Config::getAppValue(APP_ID, 'imap_uri'));
 $template->assign('imap_port', OCP\Config::getAppValue(APP_ID, 'imap_port'));
+$template->assign('imap_max_retries', OCP\Config::getAppValue(APP_ID, 'imap_max_retries'));
 
 return $template->fetchPage();

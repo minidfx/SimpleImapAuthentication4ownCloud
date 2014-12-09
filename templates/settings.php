@@ -4,12 +4,21 @@
 
 		<p>
 			<label for="imap_uri"><?php p($l->t('Server Host')); ?></label>
-			<input type="text" name="imap_uri" class="imap_uri" value="<?php p($_['imap_uri']); ?>">
+			<input type="text" class="imap_uri" name="imap_uri" value="<?php p($_['imap_uri']); ?>"
+			       original-title="<?php p($l->t('The host of the IMAP server. i.e. mail.domain.com')); ?>">
 		</p>
 
 		<p>
 			<label for="imap_port"><?php p($l->t('Server Port')); ?></label>
-			<input type="text" name="imap_port" value="<?php p($_['imap_port']); ?>">
+			<input type="number" name="imap_port" class="imap_port" value="<?php p($_['imap_port']); ?>"
+			       original-title="<?php p($l->t('The port of the IMAP server. i.e. 143')) ?>">
+		</p>
+
+		<p>
+			<label for="imap_max_retries"><?php p($l->t('Max retries')); ?></label>
+			<input type="number" name="imap_max_retries" value="<?php p($_['imap_max_retries']); ?>"
+			       class="imap_max_retries" maxlength="1"
+			       original-title="<?php p($l->t('The number of retries for reaching the IMAP server.')) ?>"/>
 			<span id="imap_settings_msg" class="msg success" style="display: none;">Saved</span>
 		</p>
 
