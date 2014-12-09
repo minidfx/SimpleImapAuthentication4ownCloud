@@ -20,6 +20,17 @@ final class IMAPWrapper
 	IIMAPWrapper
 {
 	/**
+	 * Returns last errors.
+	 *
+	 * @return array
+	 * @inheritdoc
+	 */
+	public function getLastErrors()
+	{
+		return imap_errors();
+	}
+
+	/**
 	 * Wraps the method <b>imap_open</b>.
 	 *
 	 * @param string $mailbox
@@ -29,19 +40,10 @@ final class IMAPWrapper
 	 * @param int    $retries
 	 *
 	 * @return mixed
+	 * @inheritdoc
 	 */
 	public function open($mailbox, $username, $password, $options, $retries)
 	{
 		return @imap_open($mailbox, $username, $password, $options, $retries);
-	}
-
-	/**
-	 * Returns last errors.
-	 *
-	 * @return array
-	 */
-	public function getLastErrors()
-	{
-		return imap_errors();
 	}
 }

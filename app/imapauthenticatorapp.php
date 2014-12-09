@@ -51,11 +51,22 @@ final class IMAPAuthenticatorApp
 			return $c->query('ServerContainer')->getLogger();
 		});
 
+		$container->registerService('IMAPWrapper', function (IAppContainer $c)
+		{
+			return new IMAPWrapper();
+		});
+
 		$container->registerService('IMAPUserManager', function (IAppContainer $c)
 		{
 			return new IMAPAuthenticator($c->query('UserManager'), $c->query('Config'), $c->query('Logger'),
-			                             new IMAPWrapper());
+			                             $c->query('IMAPWrapper'));
 		});
+	}
+
+	public function registerUserBackend()
+	{
+		/** @var IAppContainer $container */
+		$container = $this->getContainer();
 
 		/** @var IUserManager $userManager */
 		$userManager = $container->query('UserManager');

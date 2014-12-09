@@ -25,6 +25,7 @@ interface IIMAPWrapper
 	 * @param int    $retries
 	 *
 	 * @return mixed
+	 * @inheritdoc
 	 */
 	public function open($mailbox, $username, $password, $options, $retries);
 
@@ -32,6 +33,7 @@ interface IIMAPWrapper
 	 * Returns last errors.
 	 *
 	 * @return array
+	 * @inheritdoc
 	 */
 	public function getLastErrors();
 } 
