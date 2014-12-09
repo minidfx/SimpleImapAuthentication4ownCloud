@@ -30,18 +30,18 @@ spl_autoload_register(function ($class)
 	{
 		$fileToLoad = str_replace('\\', '/', $class);
 		$fileToLoad = str_replace('OCA/user_imapauth/', '', $fileToLoad);
-		$fileToLoad = __DIR__ . "/../$fileToLoad.php";
+		$fileToLoad = "/../$fileToLoad.php";
 	}
 	else if ($startsWith === 'OCP')
 	{
 		$fileToLoad = str_replace('\\', '/', $class);
 		$fileToLoad = str_replace('OCP/', '', $fileToLoad);
-		$fileToLoad = __DIR__ . "/interfaces/$fileToLoad.php";
+		$fileToLoad = "/interfaces/$fileToLoad.php";
 	}
 	else if ($startsWith === 'OC_')
 	{
 		$fileToLoad = str_replace('\\', '/', $class);
-		$fileToLoad = __DIR__ . "/interfaces/$fileToLoad.php";
+		$fileToLoad = "/interfaces/$fileToLoad.php";
 	}
 
 	if ($fileToLoad !== NULL)
@@ -49,6 +49,6 @@ spl_autoload_register(function ($class)
 		$fileToLoad = strtolower($fileToLoad);
 
 		/** @noinspection PhpIncludeInspection */
-		require_once $fileToLoad;
+		require_once __DIR__ . $fileToLoad;
 	}
 });
