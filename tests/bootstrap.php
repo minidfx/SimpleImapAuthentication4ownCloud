@@ -36,12 +36,12 @@ spl_autoload_register(function ($class)
 	{
 		$fileToLoad = str_replace('\\', '/', $class);
 		$fileToLoad = str_replace('OCP/', '', $fileToLoad);
-		$fileToLoad = __DIR__ . "/Interfaces/$fileToLoad.php";
+		$fileToLoad = __DIR__ . "/interfaces/$fileToLoad.php";
 	}
 	else if ($startsWith === 'OC_')
 	{
 		$fileToLoad = str_replace('\\', '/', $class);
-		$fileToLoad = __DIR__ . "/Interfaces/$fileToLoad.php";
+		$fileToLoad = __DIR__ . "/interfaces/$fileToLoad.php";
 	}
 
 	if ($fileToLoad !== NULL)
