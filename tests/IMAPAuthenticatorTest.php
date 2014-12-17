@@ -223,6 +223,8 @@ final class IMAPAuthenticatorTest
 		$specifiedPassword = 'a password';
 		/** @var int $returnedMaxRetries */
 		$returnedMaxRetries = 2;
+		/** @var string $returnedUseSSL */
+		$returnedUseSSL = 'true';
 
 		$this->injectedConfigMock->expects($this->at(0))
 		                         ->method('getAppValue')
@@ -236,12 +238,82 @@ final class IMAPAuthenticatorTest
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue($returnedMaxRetries));
 
+		$this->injectedConfigMock->expects($this->at(3))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedUseSSL));
+
 		$this->createSut();
 
 		$this->injectedIMAPWrapperMock->expects($this->once())
 		                              ->method('open')
-		                              ->with("{{$returnedHost}:{$returnedPort}/imap/ssl}INBOX", $specifiedUsername,
-		                                     $specifiedPassword, OP_READONLY, $returnedMaxRetries)
+		                              ->with(sprintf('{%s:%d/imap/ssl}INBOX', $returnedHost, $returnedPort),
+		                                     $specifiedUsername,
+		                                     $specifiedPassword,
+		                                     OP_READONLY,
+		                                     $returnedMaxRetries)
+		                              ->will($this->returnValue(FALSE));
+
+		$this->injectedIMAPWrapperMock->expects($this->once())
+		                              ->method('getLastErrors')
+		                              ->will($this->returnValue($returnedIMAPErrors));
+
+		$this->injectedLoggerMock->expects($this->once())
+		                         ->method('warning')
+		                         ->with(implode(';', $returnedIMAPErrors), array('app' => APP_ID));
+
+		$result = $this->sut->checkPassword($specifiedUsername, $specifiedPassword);
+
+		$this->assertFalse($result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function when_checkPassword_is_called_with_wrong_credentials_without_SSL()
+	{
+		/** @var string $returnedHost */
+		$returnedHost = 'an host';
+		/** @var string $returnedPort */
+		$returnedPort = 1;
+
+		/** @var array $returnedIMAPErrors */
+		$returnedIMAPErrors = array('error 1',
+		                            'error 2');
+
+		/** @var string $specifiedUsername */
+		$specifiedUsername = 'an uid';
+		/** @var string $specifiedPassword */
+		$specifiedPassword = 'a password';
+		/** @var int $returnedMaxRetries */
+		$returnedMaxRetries = 2;
+		/** @var string $returnedUseSSL */
+		$returnedUseSSL = 'false';
+
+		$this->injectedConfigMock->expects($this->at(0))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedHost));
+
+		$this->injectedConfigMock->expects($this->at(1))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedPort));
+
+		$this->injectedConfigMock->expects($this->at(2))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedMaxRetries));
+
+		$this->injectedConfigMock->expects($this->at(3))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedUseSSL));
+
+		$this->createSut();
+
+		$this->injectedIMAPWrapperMock->expects($this->once())
+		                              ->method('open')
+		                              ->with(sprintf('{%s:%d/imap/novalidate-cert}INBOX', $returnedHost, $returnedPort),
+		                                     $specifiedUsername,
+		                                     $specifiedPassword,
+		                                     OP_READONLY,
+		                                     $returnedMaxRetries)
 		                              ->will($this->returnValue(FALSE));
 
 		$this->injectedIMAPWrapperMock->expects($this->once())
@@ -273,6 +345,8 @@ final class IMAPAuthenticatorTest
 		$specifiedPassword = 'a password';
 		/** @var int $returnedMaxRetries */
 		$returnedMaxRetries = 2;
+		/** @var string $returnedUseSSL */
+		$returnedUseSSL = 'true';
 
 		$this->injectedConfigMock->expects($this->at(0))
 		                         ->method('getAppValue')
@@ -286,11 +360,16 @@ final class IMAPAuthenticatorTest
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue($returnedMaxRetries));
 
+		$this->injectedConfigMock->expects($this->at(3))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedUseSSL));
+
 		$this->createSut();
 
 		$this->injectedIMAPWrapperMock->expects($this->once())
 		                              ->method('open')
-		                              ->with("{{$returnedHost}:{$returnedPort}/imap/ssl}INBOX", $specifiedUsername,
+		                              ->with(sprintf('{%s:%d/imap/ssl}INBOX', $returnedHost, $returnedPort),
+		                                     $specifiedUsername,
 		                                     $specifiedPassword, OP_READONLY, $returnedMaxRetries)
 		                              ->will($this->returnValue(TRUE));
 
@@ -324,6 +403,8 @@ final class IMAPAuthenticatorTest
 		$specifiedPassword = 'a password';
 		/** @var int $returnedMaxRetries */
 		$returnedMaxRetries = 2;
+		/** @var string $returnedUseSSL */
+		$returnedUseSSL = 'true';
 
 		$this->injectedConfigMock->expects($this->at(0))
 		                         ->method('getAppValue')
@@ -337,11 +418,16 @@ final class IMAPAuthenticatorTest
 		                         ->method('getAppValue')
 		                         ->will($this->returnValue($returnedMaxRetries));
 
+		$this->injectedConfigMock->expects($this->at(3))
+		                         ->method('getAppValue')
+		                         ->will($this->returnValue($returnedUseSSL));
+
 		$this->createSut();
 
 		$this->injectedIMAPWrapperMock->expects($this->once())
 		                              ->method('open')
-		                              ->with("{{$returnedHost}:{$returnedPort}/imap/ssl}INBOX", $specifiedUsername,
+		                              ->with(sprintf('{%s:%d/imap/ssl}INBOX', $returnedHost, $returnedPort),
+		                                     $specifiedUsername,
 		                                     $specifiedPassword, OP_READONLY, $returnedMaxRetries)
 		                              ->will($this->returnValue(TRUE));
 
@@ -515,11 +601,11 @@ final class IMAPAuthenticatorTest
 	{
 		parent::setUp();
 
-		$this->injectedConfigMock      = $this->getMock('\OCP\IConfig');
+		$this->injectedConfigMock = $this->getMock('\OCP\IConfig');
 		$this->injectedUserManagerMock = $this->getMock('\OCP\IUserManager');
-		$this->injectedLoggerMock      = $this->getMock('\OCP\ILogger');
+		$this->injectedLoggerMock = $this->getMock('\OCP\ILogger');
 		$this->injectedIMAPWrapperMock = $this->getMock('\OCA\user_imapauth\lib\Contracts\IIMAPWrapper');
-		$this->returnedUserMock        = $this->getMock('\OCP\IUser');
+		$this->returnedUserMock = $this->getMock('\OCP\IUser');
 	}
 }
  

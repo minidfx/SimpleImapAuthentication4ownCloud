@@ -62,7 +62,10 @@ final class IMAPAuthenticator
 	 */
 	private $maxRetries;
 
-	/** @noinspection SpellCheckingInspection */
+	/**
+	 * @var bool
+	 */
+	private $useSSL;
 
 	/**
 	 * Initializes an instance of <b>user_imapauth</b>
@@ -71,14 +74,13 @@ final class IMAPAuthenticator
 	 * @param IConfig      $config
 	 * @param ILogger      $logger
 	 * @param IIMAPWrapper $imapWrapper
-	 *
-	 * @internal param IUserSession $userSession
 	 */
 	public function __construct(IUserManager $userManager, IConfig $config, ILogger $logger, IIMAPWrapper $imapWrapper)
 	{
-		$host       = $config->getAppValue(APP_ID, 'imap_uri', NULL);
-		$port       = $config->getAppValue(APP_ID, 'imap_port', NULL);
+		$host = $config->getAppValue(APP_ID, 'imap_uri', NULL);
+		$port = $config->getAppValue(APP_ID, 'imap_port', NULL);
 		$maxRetries = $config->getAppValue(APP_ID, 'imap_max_retries', NULL);
+		$useSSL = $config->getAppValue(APP_ID, 'imap_use_ssl', 'true') === 'true';
 
 		if ($host === NULL)
 		{
@@ -95,13 +97,14 @@ final class IMAPAuthenticator
 			$config->setAppValue(APP_ID, 'max_retries', $maxRetries = 2);
 		}
 
-		$this->host       = $host;
-		$this->port       = intval($port);
+		$this->host = $host;
+		$this->port = intval($port);
 		$this->maxRetries = intval($maxRetries);
+		$this->useSSL = $useSSL;
 
 		$this->userManager = $userManager;
-		$this->config      = $config;
-		$this->logger      = $logger;
+		$this->config = $config;
+		$this->logger = $logger;
 		$this->imapWrapper = $imapWrapper;
 	}
 
@@ -142,9 +145,13 @@ final class IMAPAuthenticator
 			return FALSE;
 		}
 
-		// INFO: [MiniDfx 15-11-2014 07:32:12] Try to open the inbox in read only.
-		$loginResult = $this->imapWrapper->open("{{$this->host}:{$this->port}/imap/ssl}INBOX", $uid, $password,
-		                                        OP_READONLY, $this->maxRetries);
+		/** @var string $mailbox */
+		$mailbox = sprintf("{%s:%d/imap%s}INBOX",
+		                   $this->host,
+		                   $this->port,
+		                   $this->useSSL ? '/ssl' : '/novalidate-cert');
+
+		$loginResult = $this->imapWrapper->open($mailbox, $uid, $password, OP_READONLY, $this->maxRetries);
 
 		if ($loginResult === FALSE)
 		{

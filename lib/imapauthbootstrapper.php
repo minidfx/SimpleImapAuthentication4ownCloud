@@ -36,6 +36,11 @@ final class IMAPAuthBootstrapper
 		$this->authenticator = $authenticator;
 	}
 
+	/**
+	 * Initializes configuration of the IMAP authenticator.
+	 *
+	 * @inheritdoc
+	 */
 	public function init()
 	{
 		if (!defined('APP_ID'))
@@ -48,6 +53,11 @@ final class IMAPAuthBootstrapper
 		$this->authenticator->registerUserBackend();
 	}
 
+	/**
+	 * Registers the configuration board in the ownCloud admin console.
+	 *
+	 * @inheritdoc
+	 */
 	public function registerAdminFunctionalities()
 	{
 		App::registerAdmin(APP_ID, 'settings');
