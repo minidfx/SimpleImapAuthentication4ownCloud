@@ -28,7 +28,7 @@
 					<?php p($l->t('Use SSL')); ?>
 				</label>
 			</div>
-			<div class="clear"></div>
+			<div class="imapClear"></div>
 		</div>
 
 		<p class="imap_max_retries">

@@ -1,23 +1,23 @@
-#imapauth .imap_uri input, .imap_port input, .imap_max_retries input {
-    margin-left:20px;
+.imap_uri input, .imap_port input, .imap_max_retries input {
+    margin-left: 20px;
 }
 
-#imapauth .imap_uri input {
+.imap_uri input {
     width: 300px;
 }
 
-#imapauth .imap_max_retries input, .imap_port input {
+.imap_max_retries input, .imap_port input {
     width: 50px;
 }
 
-#imapauth .imap_port {
+.imap_port {
     float: left;
 }
 
-#imapauth .imap_ssl {
+.imap_ssl {
     padding: 9px 0 0 170px;
 }
 
-#imapauth div.clear {
+.imapClear {
     clear: both;
 }
