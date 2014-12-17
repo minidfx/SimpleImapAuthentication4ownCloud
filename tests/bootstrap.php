@@ -10,15 +10,6 @@
 /** @noinspection SpellCheckingInspection */
 define('APP_ID', 'user_imapauth');
 
-define('OC_USER_BACKEND_CREATE_USER', 0x00000001);
-define('OC_USER_BACKEND_SET_PASSWORD', 0x00000010);
-define('OC_USER_BACKEND_CHECK_PASSWORD', 0x00000100);
-define('OC_USER_BACKEND_GET_HOME', 0x00001000);
-define('OC_USER_BACKEND_GET_DISPLAYNAME', 0x00010000);
-define('OC_USER_BACKEND_SET_DISPLAYNAME', 0x00100000);
-define('OC_USER_BACKEND_PROVIDE_AVATAR', 0x01000000);
-define('OC_USER_BACKEND_COUNT_USERS', 0x10000000);
-
 spl_autoload_register(function ($class)
 {
 	/** @var string $startsWith */
@@ -32,17 +23,6 @@ spl_autoload_register(function ($class)
 		$fileToLoad = str_replace('OCA/user_imapauth/', '', $fileToLoad);
 		$fileToLoad = "/../$fileToLoad.php";
 	}
-	else if ($startsWith === 'OCP')
-	{
-		$fileToLoad = str_replace('\\', '/', $class);
-		$fileToLoad = str_replace('OCP/', '', $fileToLoad);
-		$fileToLoad = "/interfaces/$fileToLoad.php";
-	}
-	else if ($startsWith === 'OC_')
-	{
-		$fileToLoad = str_replace('\\', '/', $class);
-		$fileToLoad = "/interfaces/$fileToLoad.php";
-	}
 
 	if ($fileToLoad !== NULL)
 	{
@@ -52,3 +32,5 @@ spl_autoload_register(function ($class)
 		require_once __DIR__ . $fileToLoad;
 	}
 });
+
+require_once __DIR__ . '/../vendor/autoload.php';
