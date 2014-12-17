@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <info>
     <id>user_imapauth</id>
-    <name>IMAP user authentication</name>
-    <description>Provide the user authentication through IMAP.</description>
-    <version>0.1</version>
+    <name>IMAP user backend</name>
+    <description>Provide a user authentication through IMAP.</description>
+    <version>0.4</version>
     <licence>AGPL</licence>
     <author>Burgy Benjamin</author>
     <requiremin>7</requiremin>
@@ -15,8 +15,6 @@
     <documentation>
         <user>http://blog.couloir42.ch/user_imapauth</user>
     </documentation>
-
-    <website>http://blog.couloir42.ch</website>
 
     <standalone/>
 </info>
